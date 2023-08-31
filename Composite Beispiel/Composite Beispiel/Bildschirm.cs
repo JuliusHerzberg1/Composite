@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace Composite_Design_Pattern
+﻿namespace Composite_Design_Pattern
 {
     public class Bildschirm : IComponent
     {
