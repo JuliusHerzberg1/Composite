@@ -1,62 +1,32 @@
-﻿using Composite_Design_Pattern;
-using System.Net;
-using System.Xml.Linq;
+﻿using Composite_Beispiel;
+using Composite_Design_Pattern;
 
-// Class for customers
-class Customer2
-{
-    public string Name { get; set; }
-    public string Address { get; set; }
-
-    public Customer2(string name, string address)
-    {
-        Name = name;
-        Address = address;
-    }
-}
-
-// Class for screens
-class Screen2
-{
-    public string Manufcaturer { get; set; }
-    public string Model { get; set; }
-    public string Size { get; set; }
-
-    public Screen2(string manufacturer, string model, string size)
-    {
-        Manufcaturer = manufacturer;
-        Model = model;
-        Size = size;
-    }
-}
-
-// Class for keyboards
 class Keyboard2
 {
     public string Manufacturer { get; set; }
     public string Model { get; set; }
     public string Layout { get; set; }
     public string Size { get; set; }
+    public List<Switch> Switches { get; set; }
 
-    public Keyboard2(string hersteller, string modell, string layout, string groesse)
+    public Keyboard2(string manufacturer, string model, string layout, string size)
     {
-        Manufacturer = hersteller;
-        Model = modell;
+        Manufacturer = manufacturer;
+        Model = model;
         Layout = layout;
-        Size = groesse;
+        Size = size;
+        Switches = new List<Switch>();
     }
 }
 
 class OrderWithoutComposite
 {
-    //Difference:
-    public List<Screen2> Screens { get; set; }
+    public string ID;
+    public Customer Customer { get; set; }
+    public List<Screen> Screens { get; set; }
     public List<Keyboard2> Keyboards { get; set; }
 
-    public Customer2 Customer;
-    public string ID;
-
-    public OrderWithoutComposite()
+    public OrderWithoutComposite(Customer customer)
     {
         var nmbrs = "0123456789";
         var id = "";
@@ -66,24 +36,29 @@ class OrderWithoutComposite
             id += nmbrs[Random.Shared.Next(0, nmbrs.Length)];
         }
         ID = id;
-        Screens = new List<Screen2>();
+        Customer = customer;
+        Screens = new List<Screen>();
         Keyboards = new List<Keyboard2>();
     }
 
-    //Difference
     public void Operation()
     {
         Console.WriteLine($"Order {ID}");
-        Console.WriteLine($"[Customer]: Name: {Customer.Name}, Adresse: {Customer.Address}");
-        Console.WriteLine("Screens:");
-        foreach (var screens in Screens)
+        Console.WriteLine(Customer.ToString());
+        foreach (var screen in Screens)
         {
-            Console.WriteLine(screens.Manufcaturer + " " + screens.Model + " " + screens.Size);
+            Console.WriteLine($"[Screen]: Brand: {screen.Brand}, Model: {screen.Model}, Size: {screen.Size}");
         }
-        Console.WriteLine("Keyboards:");
-        foreach (var tastatur in Keyboards)
+        foreach (var keyboard in Keyboards)
         {
-            Console.WriteLine(tastatur.Manufacturer + " " + tastatur.Model + " " + tastatur.Layout + " " + tastatur.Size);
+            Console.WriteLine($"[Keyboard]: Brand: {keyboard.Manufacturer}, Model: {keyboard.Model}, Layout: {keyboard.Layout}, Size: {keyboard.Size}");
+            if(keyboard.Switches.Count > 0)
+            {
+                foreach (var switchName in keyboard.Switches)
+                {
+                    Console.WriteLine($"[Switch]: {switchName}");
+                }
+            }
         }
     }
 }
@@ -93,34 +68,41 @@ class Program
     static void Main(string[] args)
     {
         //Composite example
-        var bestellung = new Order();
+        var order = new Order();
 
-        bestellung.AddComponent(new Customer("Deniss Cutie", "Under the bridge 13"));
+        order.AddComponent(new Customer("Deniss Cutie", "Under the bridge 13"));
 
-        bestellung.AddComponent(new Screen("Acer", "QG240YH3", "23,8 inches"));
-        bestellung.AddComponent(new Screen("Acer", "QG240YH3", "23,8 inches"));
-        bestellung.AddComponent(new Screen("Hp", "P34hc ", "34 inches"));
+        order.AddComponent(new Screen("Acer", "QG240YH3", "23,8 inches"));
+        order.AddComponent(new Screen("Acer", "QG240YH3", "23,8 inches"));
+        order.AddComponent(new Screen("Hp", "P34hc ", "34 inches"));
 
-        bestellung.AddComponent(new Keyboard("Sharkoon", "SKILLER SGK5", "DE", "100%"));
-        bestellung.AddComponent(new Keyboard("Logitech", "MK270", "US", "100%"));
-        bestellung.AddComponent(new Keyboard("HyperX", "Alloy", "US", "60%"));
+        var keyboard = new Keyboard("Sharkoon", "SKILLER SGK5", "DE", "100%");
+        keyboard.Components.Add(new Switch("Red BX", "Cherry"));
+        keyboard.Components.Add(new Switch("Purple CX", "Cherry"));
 
-        bestellung.Operation();
+        order.AddComponent(keyboard);
+        order.AddComponent(new Keyboard("Logitech", "MK270", "US", "100%"));
+        order.AddComponent(new Keyboard("HyperX", "Alloy", "US", "60%"));
+
+        order.Operation();
 
         Console.WriteLine("");
 
-        //negative example
-        var bestellung2 = new OrderWithoutComposite();
-        bestellung2.Customer = new Customer2("Deniss Cutie", "Under the bridge 13");
+        //Negative example
+        var order2 = new OrderWithoutComposite(new Customer("Deniss Cutie", "Under the bridge 13"));
 
-        bestellung2.Screens.Add(new Screen2("Acer", "QG240YH3", "23,8 inches"));
-        bestellung2.Screens.Add(new Screen2("Acer", "QG240YH3", "23,8 inches"));
-        bestellung2.Screens.Add(new Screen2("Hp", "P34hc ", "34 inches"));
+        order2.Screens.Add(new Screen("Acer", "QG240YH3", "23,8 inches"));
+        order2.Screens.Add(new Screen("Acer", "QG240YH3", "23,8 inches"));
+        order2.Screens.Add(new Screen("Hp", "P34hc ", "34 inches"));
 
-        bestellung2.Keyboards.Add(new Keyboard2("Sharkoon", "SKILLER SGK5", "DE", "100%"));
-        bestellung2.Keyboards.Add(new Keyboard2("Logitech", "MK270", "US", "100%"));
-        bestellung2.Keyboards.Add(new Keyboard2("HyperX", "Alloy", "US", "60%"));
+        var keyboard1 = new Keyboard2("Sharkoon", "SKILLER SGK5", "DE", "100%");
+        keyboard1.Switches.Add(new Switch("Red BX", "Cherry"));
+        keyboard1.Switches.Add(new Switch("Purple CX", "Cherry"));
+        order2.Keyboards.Add(keyboard1);
 
-        bestellung2.Operation();
+        order2.Keyboards.Add(new Keyboard2("Logitech", "MK270", "US", "100%"));
+        order2.Keyboards.Add(new Keyboard2("HyperX", "Alloy", "US", "60%"));
+
+        order2.Operation();
     }
 }
